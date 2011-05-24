@@ -70,9 +70,14 @@ public class RadiatorView extends ListView {
 	 Boolean groupByPrefix = true;
 	 
 	 /**
-	  * User configuration - shows the date and time of the last page update.
+	  * User configuration - show the date and time of the last page update.
 	  */
 	 private Boolean showCurrentDateTime = false;
+	 
+	 /**
+	  * User configuration - show the the last commit message." 
+	  */
+	 private Boolean showCommitMessages = false;
 	 
 
 	/**
@@ -195,6 +200,7 @@ public class RadiatorView extends ListView {
 		this.highVis = Boolean.parseBoolean(req.getParameter("highVis"));
 		this.groupByPrefix = Boolean.parseBoolean(req.getParameter("groupByPrefix"));
 		this.showCurrentDateTime = Boolean.parseBoolean(req.getParameter("showCurrentDateTime"));
+		this.showCommitMessages = Boolean.parseBoolean(req.getParameter("showCommitMessages"));
 	}
 
 	public Boolean getShowStable() {
@@ -222,6 +228,14 @@ public class RadiatorView extends ListView {
 	 */
 	public boolean isShowCurrentDateTime() {
 		return showCurrentDateTime.booleanValue();
+	}
+	
+	/**
+	 * @return the user configuration to show the commit messages
+	 */
+	public boolean isShowCommitMessages()
+	{
+		return showCommitMessages.booleanValue();
 	}
 
 	/**

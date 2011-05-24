@@ -456,4 +456,19 @@ public class JobViewEntry  implements IViewEntry
 	public boolean hasChildren() {
 		return false;
 	}
+	
+	/**
+	 * @return the last commit message if possible
+	 */
+	public String getLastMessage() {
+		String lastMessage = "";
+		Run<?, ?> lastRun = job.getLastBuild();
+		if (lastRun instanceof AbstractBuild<?, ?>) {
+			AbstractBuild<?, ?> lastBuild = (AbstractBuild<?, ?>) lastRun;
+			if (lastBuild.getChangeSet().iterator().hasNext()) {
+				lastMessage = lastBuild.getChangeSet().iterator().next().getMsg();
+			}
+		}
+		return lastMessage;
+	}
 }

@@ -58,6 +58,7 @@
 					<st:include page="jobs.jelly" />
 				</j:if>
 				
+				<!-- Show current date/time if wanted -->
 				<j:if test="${from.isShowCurrentDateTime()}">
 					<j:invoke var="lastUpdateTime" on="${from}" method="getLastUpdateTime"/>
 					<div style="text-align: right;">Last update at: ${lastUpdateTime}</div>	

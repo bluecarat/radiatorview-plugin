@@ -37,4 +37,8 @@
 	<f:entry title="${%Show current date/time?}" field="showCurrentDateTime">
 		<f:checkbox name="showCurrentDateTime" checked="${it.showCurrentDateTime}" value="true" field="showCurrentDateTime" />
 	</f:entry>
+	
+	<f:entry title="${%Show commit messages?}" field="showCommitMessages">
+		<f:checkbox name="showCommitMessages" checked="${it.showCommitMessages}" value="true" field="showCommitMessages" />
+	</f:entry>
 </j:jelly>

@@ -41,6 +41,10 @@
 				</j:if>
 			</j:if>
 		</p>
+		<!-- Show last commit message if wanted -->
+		<j:if test="${from.isShowCommitMessages()}">
+		<div>${job.lastMessage}</div>
+		</j:if>
 		<!--  Details of current Runs -->
 		<j:forEach var="run" items="${job.buildsInProgress}">
 			<p>Now building: ${run.displayName}, ${run.executor.progress}% -
