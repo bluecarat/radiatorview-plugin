@@ -6,8 +6,11 @@ import hudson.model.Descriptor.FormException;
 import hudson.util.FormValidation;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
@@ -65,6 +68,12 @@ public class RadiatorView extends ListView {
 	 * User configuration - group builds by common prefix.
 	 */
 	 Boolean groupByPrefix = true;
+	 
+	 /**
+	  * User configuration - shows the date and time of the last page update.
+	  */
+	 private Boolean showCurrentDateTime = false;
+	 
 
 	/**
 	 * @param name
@@ -185,6 +194,7 @@ public class RadiatorView extends ListView {
 				.getParameter("showStableDetail"));
 		this.highVis = Boolean.parseBoolean(req.getParameter("highVis"));
 		this.groupByPrefix = Boolean.parseBoolean(req.getParameter("groupByPrefix"));
+		this.showCurrentDateTime = Boolean.parseBoolean(req.getParameter("showCurrentDateTime"));
 	}
 
 	public Boolean getShowStable() {
@@ -199,11 +209,31 @@ public class RadiatorView extends ListView {
 		return highVis;
 	}
 	
+	/**
+	 * @return the user configuration to show the date and time of the last page update
+	 */
 	public Boolean getGroupByPrefix()
 	{
 		return groupByPrefix;
 	}
 
+	/**
+	 * @return the user configuration to show the date and time of the last page update
+	 */
+	public boolean isShowCurrentDateTime() {
+		return showCurrentDateTime.booleanValue();
+	}
+
+	/**
+	 * Returns the date/time of call formatted as yyyy-MM-DD hh:mm:ss.
+	 * 
+	 * @return the formatted date of this call
+	 */
+	public String getLastUpdateTime() {
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return formatter.format(new Date());
+	}
+	
 	/**
 	 * Converts a list of jobs to a list of list of jobs, suitable for display
 	 * as rows in a table.

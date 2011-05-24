@@ -34,4 +34,7 @@
 		<f:checkbox name="groupByPrefix" checked="${it.groupByPrefix}" value="true" field="groupByPrefix" />
 	</f:entry>
 	
+	<f:entry title="${%Show current date/time?}" field="showCurrentDateTime">
+		<f:checkbox name="showCurrentDateTime" checked="${it.showCurrentDateTime}" value="true" field="showCurrentDateTime" />
+	</f:entry>
 </j:jelly>
