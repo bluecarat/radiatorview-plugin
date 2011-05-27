@@ -17,28 +17,28 @@
     </f:entry>
   </f:optionalBlock>
 
-	<f:entry title="${%Show stable builds?}" field="showStable"  help="/plugin/radiatorviewplugin/help/showstable.html">
+	<f:entry title="${%Show stable builds}?" field="showStable"  help="/plugin/radiatorviewplugin/help/showstable.html">
 		<f:checkbox name="showStable" checked="${it.showStable}" value="true" field="showStable" />
 	</f:entry>
 	
-	<f:entry title="${%Show stable detail?}" field="showStableDetail" help="/plugin/radiatorviewplugin/help/showstabledetail.html">
+	<f:entry title="${%Show stable detail}?" field="showStableDetail" help="/plugin/radiatorviewplugin/help/showstabledetail.html">
 		<f:checkbox name="showStableDetail" checked="${it.showStableDetail}" value="true" field="showStableDetail" />
 	</f:entry>
 	
-	<f:entry title="${%Use Dark Background?}" field="highVis" help="/plugin/radiatorviewplugin/help/highVis.html">
+	<f:entry title="${%Use Dark Background}?" field="highVis" help="/plugin/radiatorviewplugin/help/highVis.html">
 		<f:checkbox name="highVis" checked="${it.highVis}" value="true" field="highVis" />
 	</f:entry>
 	
 	
-	<f:entry title="${%Show as Projects?}" field="groupByPrefix" help="/plugin/radiatorviewplugin/help/groupByPrefix.html">
+	<f:entry title="${%Show as Projects}?" field="groupByPrefix" help="/plugin/radiatorviewplugin/help/groupByPrefix.html">
 		<f:checkbox name="groupByPrefix" checked="${it.groupByPrefix}" value="true" field="groupByPrefix" />
 	</f:entry>
 	
-	<f:entry title="${%Show current date/time?}" field="showCurrentDateTime">
+	<f:entry title="${%Show current date/time}?" field="showCurrentDateTime">
 		<f:checkbox name="showCurrentDateTime" checked="${it.showCurrentDateTime}" value="true" field="showCurrentDateTime" />
 	</f:entry>
 	
-	<f:entry title="${%Show commit messages?}" field="showCommitMessages">
+	<f:entry title="${%Show commit messages}?" field="showCommitMessages">
 		<f:checkbox name="showCommitMessages" checked="${it.showCommitMessages}" value="true" field="showCommitMessages" />
 	</f:entry>
 </j:jelly>

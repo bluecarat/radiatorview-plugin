@@ -27,11 +27,11 @@
 			<j:if test="${job.broken == false}">
 				<j:if test="${job.failCount == 1}">
 					<font
-						style="text-align=center; color: #FF0000; font-size: ${failFont}; font-weight:bold;">1/${job.testCount} test failure</font>
+						style="text-align=center; color: #FF0000; font-size: ${failFont}; font-weight:bold;">1/${job.testCount} ${%test failure}</font>
 				</j:if>
 				<j:if test="${ job.failCount > 1}">
 					<font
-						style="text-align=center; color: #FF0000; font-size: ${failFont}; font-weight:bold;">${job.failCount}/${job.testCount} test failures</font>
+						style="text-align=center; color: #FF0000; font-size: ${failFont}; font-weight:bold;">${job.failCount}/${job.testCount} ${%test failures}</font>
 				</j:if>
 				<j:if test="${job.diff != ''}">
 					(
@@ -43,23 +43,23 @@
 		</p>
 		<!-- Show last commit message if wanted -->
 		<j:if test="${from.isShowCommitMessages()}">
-		<div>${job.lastMessage}</div>
+			<div>${job.lastMessage}</div>
 		</j:if>
 		<!--  Details of current Runs -->
 		<j:forEach var="run" items="${job.buildsInProgress}">
-			<p>Now building: ${run.displayName}, ${run.executor.progress}% -
-				${run.executor.estimatedRemainingTime} left</p>
+			<p>${%Now building}: ${run.displayName}, ${run.executor.progress}% -
+				${run.executor.estimatedRemainingTime} ${%left}</p>
 		</j:forEach>
 		<j:if test="${job.queued == true}">
-			<p>Build pending (#${job.queueNumber} in queue)</p>
+			<p>${%Build pending} (#${job.queueNumber} ${%in queue})</p>
 		</j:if>
 		<j:if test="${!job.getStable()}">
 			<j:if test="${job.getCulprit() != &quot; - &quot;}">
-				<p>Possible culprit: ${job.culprit}</p>
+				<p>${%Possible culprit}: ${job.culprit}</p>
 			</j:if>
 			<j:if test="${job.getLastStableBuild() != null}">
 				<p>
-					Last Stable Build:
+					${%Last Stable Build}:
 					<strong>${job.getLastStableBuild()}</strong>
 				</p>
 			</j:if>
