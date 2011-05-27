@@ -8,9 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.jvnet.hudson.test.HudsonTestCase;
 
-import static org.junit.Assert.*;
-
-
 public class RadiatorViewTest extends HudsonTestCase {
 
 	private RadiatorView view;
