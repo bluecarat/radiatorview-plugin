@@ -374,7 +374,7 @@ public class JobViewEntry  implements IViewEntry
 	 */
     public String getLastCompletedBuild()
     {
-        Run build = job.getLastCompletedBuild();
+        Run<?,?> build = job.getLastCompletedBuild();
         if (build != null)
         {
             return build.getTimestampString() + " (" + build.getDurationString() + ")";
@@ -387,7 +387,7 @@ public class JobViewEntry  implements IViewEntry
 	 */
     public String getLastStableBuild()
     {
-        Run build = job.getLastStableBuild();
+        Run<?,?> build = job.getLastStableBuild();
         if (build != null)
         {
             return build.getTimestampString() + " (in " + build.getDurationString() + ")";
@@ -412,7 +412,7 @@ public class JobViewEntry  implements IViewEntry
         if (Hudson.getInstance().getPlugin("claim") != null)
         {
             claim = "Not Claimed";
-            Run lastBuild = job.getLastBuild();
+            Run<?,?> lastBuild = job.getLastBuild();
             if (lastBuild != null && lastBuild.isBuilding())
             {
                 // claims can only be made against builds once they've finished,

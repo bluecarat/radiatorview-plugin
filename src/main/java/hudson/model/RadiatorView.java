@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -130,7 +129,7 @@ public class RadiatorView extends ListView {
 
 		for (TopLevelItem item : super.getItems()) {
 			if (item instanceof AbstractProject) {
-				AbstractProject project = (AbstractProject) item;
+				AbstractProject<?,?> project = (AbstractProject<?,?>) item;
 				if (!project.isDisabled()) {
 					IViewEntry entry = new JobViewEntry(this, project);
 					contents.addBuild(entry);
