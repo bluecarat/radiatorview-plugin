@@ -26,4 +26,12 @@ public class RadiatorViewTest extends HudsonTestCase {
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         assertEquals(formatter.format(new Date()), view.getLastUpdateTime());
     }
+	
+	@Test
+	public void testIsAfterJava5() {
+		
+		// can only be true, because this plugin cannot be build with Java < 1.6
+		assertTrue(view.isAvailableHarddiskSpaceShowable());
+		
+	}
 }

@@ -41,4 +41,11 @@
 	<f:entry title="${%Show commit messages}?" field="showCommitMessages">
 		<f:checkbox name="showCommitMessages" checked="${it.showCommitMessages}" value="true" field="showCommitMessages" />
 	</f:entry>
+	
+	<!-- Show available space on harddisk -->
+	<j:if test="${it.isAvailableHarddiskSpaceShowable()}">
+		<f:entry title="${%Show available space on harddisk}?" field="availableHarddiskSpaceShowable">
+			<f:checkbox name="showAvailableHarddiskSpace" checked="${it.showAvailableHarddiskSpace}" value="true" field="showAvailableHarddiskSpace" />
+		</f:entry>
+	</j:if>
 </j:jelly>

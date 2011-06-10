@@ -13,15 +13,19 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import javax.servlet.ServletException;
+import javax.swing.JOptionPane;
 
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+
+import com.jhlabs.image.AverageFilter;
 
 /**
  * A configurable Radiator-Style job view suitable for use in extreme feedback
@@ -32,6 +36,7 @@ import org.kohsuke.stapler.StaplerRequest;
  * @author Mark Howard (mh@tildemh.com)
  */
 public class RadiatorView extends ListView {
+
 	/**
 	 * Entries to be shown in the view.
 	 */
@@ -51,33 +56,42 @@ public class RadiatorView extends ListView {
 	 * User configuration - show stable builds when there are some unstable
 	 * builds.
 	 */
-	 Boolean showStable = false;
+	Boolean showStable = false;
 
 	/**
 	 * User configuration - show details in stable builds.
 	 */
-	 Boolean showStableDetail = false;
+	Boolean showStableDetail = false;
 
 	/**
 	 * User configuration - high visibility mode.
 	 */
-	 Boolean highVis = true;
+	Boolean highVis = true;
 
 	/**
 	 * User configuration - group builds by common prefix.
 	 */
-	 Boolean groupByPrefix = true;
-	 
-	 /**
-	  * User configuration - show the date and time of the last page update.
-	  */
-	 private Boolean showCurrentDateTime = false;
-	 
-	 /**
-	  * User configuration - show the the last commit message." 
-	  */
-	 private Boolean showCommitMessages = false;
-	 
+	Boolean groupByPrefix = true;
+
+	/**
+	 * User configuration - show the date and time of the last page update.
+	 */
+	private Boolean showCurrentDateTime = false;
+
+	/**
+	 * User configuration - show the the last commit message.
+	 */
+	private Boolean showCommitMessages = false;
+
+	/**
+	 * User configuration - show the available space on the hard disk.
+	 */
+	private Boolean showAvailableHarddiskSpace = false;
+
+	/**
+	 * Is only true, if the current runtime is >= java 1.6.
+	 */
+	private boolean availableHarddiskSpaceShowable = isAfterJava5();
 
 	/**
 	 * @param name
@@ -101,9 +115,8 @@ public class RadiatorView extends ListView {
 		this.highVis = highVis;
 		this.groupByPrefix = groupByPrefix;
 	}
-	
-	public RadiatorView(String name)
-	{
+
+	public RadiatorView(String name) {
 		super(name);
 	}
 
@@ -129,7 +142,7 @@ public class RadiatorView extends ListView {
 
 		for (TopLevelItem item : super.getItems()) {
 			if (item instanceof AbstractProject) {
-				AbstractProject<?,?> project = (AbstractProject<?,?>) item;
+				AbstractProject<?, ?> project = (AbstractProject<?, ?>) item;
 				if (!project.isDisabled()) {
 					IViewEntry entry = new JobViewEntry(this, project);
 					contents.addBuild(entry);
@@ -139,19 +152,16 @@ public class RadiatorView extends ListView {
 
 		return contents;
 	}
-	
-	public ProjectViewEntry getContentsByPrefix()
-	{
+
+	public ProjectViewEntry getContentsByPrefix() {
 		ProjectViewEntry contents = new ProjectViewEntry();
 		ProjectViewEntry allContents = getContents();
 		Map<String, ProjectViewEntry> jobsByPrefix = new HashMap<String, ProjectViewEntry>();
-		
-		for (IViewEntry job: allContents.getJobs())
-		{
+
+		for (IViewEntry job : allContents.getJobs()) {
 			String prefix = getPrefix(job.getName());
 			ProjectViewEntry project = jobsByPrefix.get(prefix);
-			if (project == null)
-			{
+			if (project == null) {
 				project = new ProjectViewEntry(prefix);
 				jobsByPrefix.put(prefix, project);
 				contents.addBuild(project);
@@ -161,23 +171,18 @@ public class RadiatorView extends ListView {
 		return contents;
 	}
 
-	private String getPrefix(String name) 
-	{
-		if (name.contains("_"))
-		{
+	private String getPrefix(String name) {
+		if (name.contains("_")) {
 			return StringUtils.substringBefore(name, "_");
-		}		
-		if (name.contains("-"))
-		{
-			return StringUtils.substringBefore(name, "-");
-		}		
-		if (name.contains(":"))
-		{
-			return StringUtils.substringBefore(name, ":");
 		}
-		else return "No Project";
+		if (name.contains("-")) {
+			return StringUtils.substringBefore(name, "-");
+		}
+		if (name.contains(":")) {
+			return StringUtils.substringBefore(name, ":");
+		} else
+			return "No Project";
 	}
-
 
 	/**
 	 * Gets from the request the configuration parameters
@@ -190,16 +195,26 @@ public class RadiatorView extends ListView {
 	 *             if any
 	 */
 	@Override
-	protected void submit(StaplerRequest req) throws ServletException, IOException, 
-			FormException {
+	protected void submit(StaplerRequest req) throws ServletException,
+			IOException, FormException {
 		super.submit(req);
 		this.showStable = Boolean.parseBoolean(req.getParameter("showStable"));
 		this.showStableDetail = Boolean.parseBoolean(req
 				.getParameter("showStableDetail"));
 		this.highVis = Boolean.parseBoolean(req.getParameter("highVis"));
-		this.groupByPrefix = Boolean.parseBoolean(req.getParameter("groupByPrefix"));
-		this.showCurrentDateTime = Boolean.parseBoolean(req.getParameter("showCurrentDateTime"));
-		this.showCommitMessages = Boolean.parseBoolean(req.getParameter("showCommitMessages"));
+		this.groupByPrefix = Boolean.parseBoolean(req
+				.getParameter("groupByPrefix"));
+		this.showCurrentDateTime = Boolean.parseBoolean(req
+				.getParameter("showCurrentDateTime"));
+		this.showCommitMessages = Boolean.parseBoolean(req
+				.getParameter("showCommitMessages"));
+		this.showAvailableHarddiskSpace = Boolean.parseBoolean(req
+				.getParameter("showAvailableHarddiskSpace"));
+
+		this.availableHarddiskSpaceShowable = isAfterJava5(); // reset value to
+																// avoid
+																// problems with
+																// de-/serialization
 	}
 
 	public Boolean getShowStable() {
@@ -213,27 +228,27 @@ public class RadiatorView extends ListView {
 	public Boolean getHighVis() {
 		return highVis;
 	}
-	
+
 	/**
-	 * @return the user configuration to show the date and time of the last page update
+	 * @return the user configuration to show the date and time of the last page
+	 *         update
 	 */
-	public Boolean getGroupByPrefix()
-	{
+	public Boolean getGroupByPrefix() {
 		return groupByPrefix;
 	}
 
 	/**
-	 * @return the user configuration to show the date and time of the last page update
+	 * @return the user configuration to show the date and time of the last page
+	 *         update
 	 */
 	public boolean isShowCurrentDateTime() {
 		return showCurrentDateTime.booleanValue();
 	}
-	
+
 	/**
 	 * @return the user configuration to show the commit messages
 	 */
-	public boolean isShowCommitMessages()
-	{
+	public boolean isShowCommitMessages() {
 		return showCommitMessages.booleanValue();
 	}
 
@@ -246,7 +261,7 @@ public class RadiatorView extends ListView {
 		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		return formatter.format(new Date());
 	}
-	
+
 	/**
 	 * Converts a list of jobs to a list of list of jobs, suitable for display
 	 * as rows in a table.
@@ -258,8 +273,8 @@ public class RadiatorView extends ListView {
 	 *            should be used per row.
 	 * @return a list of fixed size view entry lists.
 	 */
-	public Collection<Collection<IViewEntry>> toRows(Collection<IViewEntry> jobs,
-			Boolean failingJobs) {
+	public Collection<Collection<IViewEntry>> toRows(
+			Collection<IViewEntry> jobs, Boolean failingJobs) {
 		int jobsPerRow = 1;
 		if (failingJobs.booleanValue()) {
 			if (jobs.size() > 3) {
@@ -292,6 +307,44 @@ public class RadiatorView extends ListView {
 		return rows;
 	}
 
+	/**
+	 * @return true, if the current used java installation is > 1.5
+	 */
+	private boolean isAfterJava5() {
+		final String version = System.getProperties().getProperty(
+				"java.version");
+		final boolean afterJava5 = !version.startsWith("1.5"); // Hudson/Jenkins
+																// cannot run on
+																// Java < 1.5
+		return afterJava5;
+	}
+
+	/**
+	 * @return the showAvailableHarddiskSpace
+	 */
+	public boolean isShowAvailableHarddiskSpace() {
+		return showAvailableHarddiskSpace.booleanValue();
+	}
+
+	/**
+	 * @return the availableHarddiskSpaceShowable
+	 */
+	public boolean isAvailableHarddiskSpaceShowable() {
+		return availableHarddiskSpaceShowable;
+	}
+
+	/**
+	 * @return the percentage value of used space on the file system.
+	 * @throws RuntimeExcepttion if this is not allowed
+	 */
+	public long getFileSystemUsage() {
+		if (availableHarddiskSpaceShowable) {
+			return DiskSpaceUtil.getPercentageFileSystemUse(Hudson
+					.getInstance().getRootDir());
+		} else {
+			throw new RuntimeException("Trying to get the available free space of a system that is Java 1.5");
+		}
+	}
 
 	@Extension
 	public static final class DescriptorImpl extends ViewDescriptor {

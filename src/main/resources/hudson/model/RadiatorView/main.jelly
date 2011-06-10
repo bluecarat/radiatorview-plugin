@@ -66,4 +66,11 @@
 			</div>
 		</j:otherwise>
 	</j:choose>
+	<!-- Show free space on the hard disk-->
+	<j:if test="${from.isShowAvailableHarddiskSpace()}">
+	<j:invoke var="percentageUse" on="${from}" method="getFileSystemUsage" />
+		<div style="width: 80%; border: 2px solid black; padding: 2px; position: absolute">
+			<div style="display: block; position: relative; background: blue; text-align: center; color: white; height: 1em; line-height: 1em; width:${percentageUse}0%">${percentageUse}%</div>
+		</div>
+	</j:if>
 </j:jelly>
