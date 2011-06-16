@@ -1,6 +1,7 @@
 package hudson.model;
 
 import hudson.Extension;
+import hudson.PluginWrapper;
 import hudson.Util;
 import hudson.model.Descriptor.FormException;
 import hudson.util.FormValidation;
@@ -87,11 +88,11 @@ public class RadiatorView extends ListView {
 	 * User configuration - show the available space on the hard disk.
 	 */
 	private Boolean showAvailableHarddiskSpace = false;
-
+	
 	/**
-	 * Is only true, if the current runtime is >= java 1.6.
+	 * User configuration - shows the cobertura test coverage if possible
 	 */
-	private boolean availableHarddiskSpaceShowable = isAfterJava5();
+	private Boolean showTestCoverage = false;
 
 	/**
 	 * @param name
@@ -210,11 +211,8 @@ public class RadiatorView extends ListView {
 				.getParameter("showCommitMessages"));
 		this.showAvailableHarddiskSpace = Boolean.parseBoolean(req
 				.getParameter("showAvailableHarddiskSpace"));
+		this.showTestCoverage = Boolean.parseBoolean(req.getParameter("showTestCoverage"));
 
-		this.availableHarddiskSpaceShowable = isAfterJava5(); // reset value to
-																// avoid
-																// problems with
-																// de-/serialization
 	}
 
 	public Boolean getShowStable() {
@@ -313,9 +311,8 @@ public class RadiatorView extends ListView {
 	private boolean isAfterJava5() {
 		final String version = System.getProperties().getProperty(
 				"java.version");
-		final boolean afterJava5 = !version.startsWith("1.5"); // Hudson/Jenkins
-																// cannot run on
-																// Java < 1.5
+		// Hudson/Jenkins cannot run on Java < 1.5
+		final boolean afterJava5 = !version.startsWith("1.5"); 
 		return afterJava5;
 	}
 
@@ -330,7 +327,14 @@ public class RadiatorView extends ListView {
 	 * @return the availableHarddiskSpaceShowable
 	 */
 	public boolean isAvailableHarddiskSpaceShowable() {
-		return availableHarddiskSpaceShowable;
+		return isAfterJava5();
+	}
+	
+	/**
+	 * @return the showTestCoverage
+	 */
+	public boolean isShowTestCoverage() {
+		return showTestCoverage.booleanValue();
 	}
 
 	/**
@@ -338,12 +342,21 @@ public class RadiatorView extends ListView {
 	 * @throws RuntimeExcepttion if this is not allowed
 	 */
 	public long getFileSystemUsage() {
-		if (availableHarddiskSpaceShowable) {
+		if (isAvailableHarddiskSpaceShowable()) {
 			return DiskSpaceUtil.getPercentageFileSystemUse(Hudson
 					.getInstance().getRootDir());
 		} else {
 			throw new RuntimeException("Trying to get the available free space of a system that is Java 1.5");
 		}
+	}
+	
+	/**
+	 * @return true,if the "cobertura"-plugin is installed and loaded
+	 */
+	public boolean isCoberturaPluginInstalled() {
+		final PluginWrapper wrapper = Hudson.getInstance().pluginManager.getPlugin("cobertura");
+		Logger.getAnonymousLogger().warning("wrapper: " + wrapper);
+		return  wrapper != null && wrapper.isActive();
 	}
 
 	@Extension
