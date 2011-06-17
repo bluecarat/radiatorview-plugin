@@ -8,6 +8,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.jvnet.hudson.test.HudsonTestCase;
 
+/**
+ * Test for {@class RadiatorView}.
+ * @author Chris Stahlhut
+ * @version $Revision.*$*
+ */
 public class RadiatorViewTest extends HudsonTestCase {
 
 	private RadiatorView view;
