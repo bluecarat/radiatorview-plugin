@@ -1,0 +1,14 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form"
+	xmlns:i="jelly:fmt">
+	
+	<j:invoke var="currentTestCoverage" on="${job}" method="getTestLineCoverage" />
+	<j:choose>
+		<j:when test="${currentTestCoverage.lineCoverage != -1}">
+			<p style="color: ${textColor}; font-size: ${fontSize}">${currentTestCoverage.lineCoverage}; ${currentTestCoverage.lineCoverageDiff}</p>
+		</j:when>
+		<j:otherwise>
+			<p style="color: ${textColor}; font-size: ${fontSize}">${%Line coverage not accessible}; ${currentTestCoverage.lineCoverageDiff}</p>
+		</j:otherwise>
+	</j:choose>
+</j:jelly>

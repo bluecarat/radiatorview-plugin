@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import org.codehaus.groovy.control.CompilationFailedException;
 
 import groovy.lang.GroovyClassLoader;
+import hudson.model.Hudson;
 
 /**
  * Compiles and loads the groovy class at run-time so there doesn't has to be a
@@ -15,7 +16,7 @@ import groovy.lang.GroovyClassLoader;
  * @author Chris Stahlhut
  * 
  */
-class CoberturaServiceLoaderUtil {
+public class CoberturaServiceLoaderUtil {
 
 	/**
 	 * Logger of this class.
@@ -37,8 +38,8 @@ class CoberturaServiceLoaderUtil {
 	 */
 	public static CoberturaService loadCoberturaServiceImpl() {
 
-		final ClassLoader parentLoader = CoberturaServiceLoaderUtil.class
-				.getClassLoader();
+		// We need access to classes of another plugin
+		final ClassLoader parentLoader = Hudson.getInstance().getPluginManager().uberClassLoader;
 		final GroovyClassLoader loader = new GroovyClassLoader(parentLoader);
 
 		CoberturaService service = null;

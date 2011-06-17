@@ -64,6 +64,10 @@
 				</p>
 			</j:if>
 		</j:if>
+		<!-- Show line coverage of tests -->
+		<j:if test="${from.isShowTestCoverage()}">
+			<st:include page="coverage.jelly" />
+		</j:if>
 		<br />
 		<br />
 		<br />

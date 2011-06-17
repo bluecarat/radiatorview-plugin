@@ -14,19 +14,16 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import javax.servlet.ServletException;
-import javax.swing.JOptionPane;
 
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
-import com.jhlabs.image.AverageFilter;
 
 /**
  * A configurable Radiator-Style job view suitable for use in extreme feedback
@@ -320,7 +317,7 @@ public class RadiatorView extends ListView {
 	 * @return the showAvailableHarddiskSpace
 	 */
 	public boolean isShowAvailableHarddiskSpace() {
-		return showAvailableHarddiskSpace.booleanValue();
+		return showAvailableHarddiskSpace.booleanValue() && isAvailableHarddiskSpaceShowable();
 	}
 
 	/**
@@ -334,7 +331,7 @@ public class RadiatorView extends ListView {
 	 * @return the showTestCoverage
 	 */
 	public boolean isShowTestCoverage() {
-		return showTestCoverage.booleanValue();
+		return showTestCoverage.booleanValue() && isCoberturaPluginInstalled();
 	}
 
 	/**
@@ -355,7 +352,6 @@ public class RadiatorView extends ListView {
 	 */
 	public boolean isCoberturaPluginInstalled() {
 		final PluginWrapper wrapper = Hudson.getInstance().pluginManager.getPlugin("cobertura");
-		Logger.getAnonymousLogger().warning("wrapper: " + wrapper);
 		return  wrapper != null && wrapper.isActive();
 	}
 

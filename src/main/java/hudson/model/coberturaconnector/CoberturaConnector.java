@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  * @author Chris Stahlhut
  * 
  */
-class CoberturaConnector {
+public class CoberturaConnector {
 
 	/**
 	 * Logger of this class.
@@ -37,7 +37,7 @@ class CoberturaConnector {
 	 * @param job
 	 *            to get information about the test coverage from
 	 */
-	CoberturaConnector(Job<?, ?> job, CoberturaService service) {
+	public CoberturaConnector(Job<?, ?> job, CoberturaService service) {
 		this.job = job;
 		this.service = service;
 	}
@@ -47,7 +47,7 @@ class CoberturaConnector {
 	 * 
 	 * @return the coverage in percent
 	 */
-	float getTestCoverage() {
+	public float getTestCoverage() {
 		Run<?, ?> build = job.getLastBuild();
 
 		float lineRatio = getLineCoverage(build);
@@ -61,7 +61,7 @@ class CoberturaConnector {
 	 * 
 	 * @return the difference in percent
 	 */
-	float getTestCoverageDiff() {
+	public float getTestCoverageDiff() {
 		Run<?, ?> lastRun = job.getLastBuild();
 		float currentCoverage = getLineCoverage(lastRun);
 		float coverageBeforeLastRun = 0;

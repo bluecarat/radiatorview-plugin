@@ -7,7 +7,7 @@ import hudson.model.Run;
  *
  * @author Chris Stahlhut
  */
-interface CoberturaService {
+public interface CoberturaService {
     
     /**
      * Gets the last test line coverage of the given Hudson Run, calculated by the Hudson Cobertura Plugin.
