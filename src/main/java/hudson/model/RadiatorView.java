@@ -339,7 +339,7 @@ public class RadiatorView extends ListView {
 	 * @throws RuntimeExcepttion if this is not allowed
 	 */
 	public long getFileSystemUsage() {
-		if (isAvailableHarddiskSpaceShowable()) {
+		if (isShowAvailableHarddiskSpace()) {
 			return DiskSpaceUtil.getPercentageFileSystemUse(Hudson
 					.getInstance().getRootDir());
 		} else {
