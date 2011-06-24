@@ -453,6 +453,9 @@ public class JobViewEntry implements IViewEntry {
 		return lastMessage;
 	}
 
+	/**
+	 * @return the line coverage of this job
+	 */
 	public CoberturaLineCoverageResult getTestLineCoverage() {
 
 		final CoberturaService service = CoberturaServiceLoaderUtil
