@@ -16,8 +16,6 @@ Run "ant style" to check for source code style deviations.
         <module name="JavadocType">
             <property name="scope" value="public"/>
             <property name="authorFormat" value=".*"/>
-            <property name="versionFormat" value="\$Revision.*\$.*"/>
-            <!--<property name="versionFormat" value="\$Revision.*\$ \$Date.*\$.*"/>-->
         </module>
         <module name="JavadocStyle">
             <property name="scope" value="public"/>

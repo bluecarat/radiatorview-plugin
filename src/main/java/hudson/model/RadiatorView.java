@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -24,7 +25,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
-
 /**
  * A configurable Radiator-Style job view suitable for use in extreme feedback
  * systems - ideal for running on a spare PC in the office. Many thanks to
@@ -35,350 +35,357 @@ import org.kohsuke.stapler.StaplerRequest;
  */
 public class RadiatorView extends ListView {
 
-	/**
-	 * Entries to be shown in the view.
-	 */
-	private transient Collection<IViewEntry> entries;
+    /**
+     * Entries to be shown in the view.
+     */
+    private transient Collection<IViewEntry> entries;
 
-	/**
-	 * Cache of location of jobs in the build queue.
-	 */
-	transient Map<hudson.model.Queue.Item, Integer> placeInQueue = new HashMap<hudson.model.Queue.Item, Integer>();
+    /**
+     * Cache of location of jobs in the build queue.
+     */
+    transient Map<hudson.model.Queue.Item, Integer> placeInQueue = new HashMap<hudson.model.Queue.Item, Integer>();
 
-	/**
-	 * Colours to use in the view.
-	 */
-	transient ViewEntryColors colors;
+    /**
+     * Colours to use in the view.
+     */
+    transient ViewEntryColors colors;
 
-	/**
-	 * User configuration - show stable builds when there are some unstable
-	 * builds.
-	 */
-	Boolean showStable = false;
+    /**
+     * User configuration - show stable builds when there are some unstable
+     * builds.
+     */
+    Boolean showStable = false;
 
-	/**
-	 * User configuration - show details in stable builds.
-	 */
-	Boolean showStableDetail = false;
+    /**
+     * User configuration - show details in stable builds.
+     */
+    Boolean showStableDetail = false;
 
-	/**
-	 * User configuration - high visibility mode.
-	 */
-	Boolean highVis = true;
+    /**
+     * User configuration - high visibility mode.
+     */
+    Boolean highVis = true;
 
-	/**
-	 * User configuration - group builds by common prefix.
-	 */
-	Boolean groupByPrefix = true;
+    /**
+     * User configuration - group builds by common prefix.
+     */
+    Boolean groupByPrefix = true;
 
-	/**
-	 * User configuration - show the date and time of the last page update.
-	 */
-	private Boolean showCurrentDateTime = false;
+    /**
+     * User configuration - show the date and time of the last page update.
+     */
+    private Boolean showCurrentDateTime = false;
 
-	/**
-	 * User configuration - show the the last commit message.
-	 */
-	private Boolean showCommitMessages = false;
+    /**
+     * User configuration - show the the last commit message.
+     */
+    private Boolean showCommitMessages = false;
 
-	/**
-	 * User configuration - show the available space on the hard disk.
-	 */
-	private Boolean showAvailableHarddiskSpace = false;
-	
-	/**
-	 * User configuration - shows the cobertura test coverage if possible
-	 */
-	private Boolean showTestCoverage = false;
+    /**
+     * User configuration - show the available space on the hard disk.
+     */
+    private Boolean showAvailableHarddiskSpace = false;
 
-	/**
-	 * @param name
-	 *            view name.
-	 * @param showStable
-	 *            if stable builds should be shown.
-	 * @param showStableDetail
-	 *            if detail should be shown for stable builds.
-	 * @param highVis
-	 *            high visibility mode.
-	 * @param groupByPrefix
-	 *            If true, builds will be shown grouped together based on the
-	 *            prefix of the job name.
-	 */
-	@DataBoundConstructor
-	public RadiatorView(String name, Boolean showStable,
-			Boolean showStableDetail, Boolean highVis, Boolean groupByPrefix) {
-		super(name);
-		this.showStable = showStable;
-		this.showStableDetail = showStableDetail;
-		this.highVis = highVis;
-		this.groupByPrefix = groupByPrefix;
-	}
+    /**
+     * User configuration - shows the cobertura test coverage if possible
+     */
+    private Boolean showTestCoverage = false;
 
-	public RadiatorView(String name) {
-		super(name);
-	}
+    /**
+     * @param name
+     *            view name.
+     * @param showStable
+     *            if stable builds should be shown.
+     * @param showStableDetail
+     *            if detail should be shown for stable builds.
+     * @param highVis
+     *            high visibility mode.
+     * @param groupByPrefix
+     *            If true, builds will be shown grouped together based on the
+     *            prefix of the job name.
+     */
+    @DataBoundConstructor
+    public RadiatorView(String name, Boolean showStable,
+            Boolean showStableDetail, Boolean highVis, Boolean groupByPrefix) {
+        super(name);
+        this.showStable = showStable;
+        this.showStableDetail = showStableDetail;
+        this.highVis = highVis;
+        this.groupByPrefix = groupByPrefix;
+    }
 
-	/**
-	 * @return the colors to use
-	 */
-	public ViewEntryColors getColors() {
-		if (this.colors == null) {
-			this.colors = ViewEntryColors.DEFAULT;
-		}
-		return this.colors;
-	}
+    public RadiatorView(String name) {
+        super(name);
+    }
 
-	public ProjectViewEntry getContents() {
-		ProjectViewEntry contents = new ProjectViewEntry();
+    /**
+     * @return the colors to use
+     */
+    public ViewEntryColors getColors() {
+        if (this.colors == null) {
+            this.colors = ViewEntryColors.DEFAULT;
+        }
+        return this.colors;
+    }
 
-		placeInQueue = new HashMap<hudson.model.Queue.Item, Integer>();
-		int j = 1;
-		for (hudson.model.Queue.Item i : Hudson.getInstance().getQueue()
-				.getItems()) {
-			placeInQueue.put(i, j++);
-		}
+    public ProjectViewEntry getContents() {
+        ProjectViewEntry contents = new ProjectViewEntry();
 
-		for (TopLevelItem item : super.getItems()) {
-			if (item instanceof AbstractProject) {
-				AbstractProject<?, ?> project = (AbstractProject<?, ?>) item;
-				if (!project.isDisabled()) {
-					IViewEntry entry = new JobViewEntry(this, project);
-					contents.addBuild(entry);
-				}
-			}
-		}
+        placeInQueue = new HashMap<hudson.model.Queue.Item, Integer>();
+        int j = 1;
+        for (hudson.model.Queue.Item i : Hudson.getInstance().getQueue()
+                .getItems()) {
+            placeInQueue.put(i, j++);
+        }
 
-		return contents;
-	}
+        for (TopLevelItem item : super.getItems()) {
+            if (item instanceof AbstractProject) {
+                AbstractProject<?, ?> project = (AbstractProject<?, ?>) item;
+                if (!project.isDisabled()) {
+                    IViewEntry entry = new JobViewEntry(this, project);
+                    contents.addBuild(entry);
+                }
+            }
+        }
 
-	public ProjectViewEntry getContentsByPrefix() {
-		ProjectViewEntry contents = new ProjectViewEntry();
-		ProjectViewEntry allContents = getContents();
-		Map<String, ProjectViewEntry> jobsByPrefix = new HashMap<String, ProjectViewEntry>();
+        return contents;
+    }
 
-		for (IViewEntry job : allContents.getJobs()) {
-			String prefix = getPrefix(job.getName());
-			ProjectViewEntry project = jobsByPrefix.get(prefix);
-			if (project == null) {
-				project = new ProjectViewEntry(prefix);
-				jobsByPrefix.put(prefix, project);
-				contents.addBuild(project);
-			}
-			project.addBuild(job);
-		}
-		return contents;
-	}
+    public ProjectViewEntry getContentsByPrefix() {
+        ProjectViewEntry contents = new ProjectViewEntry();
+        ProjectViewEntry allContents = getContents();
+        Map<String, ProjectViewEntry> jobsByPrefix = new HashMap<String, ProjectViewEntry>();
 
-	private String getPrefix(String name) {
-		if (name.contains("_")) {
-			return StringUtils.substringBefore(name, "_");
-		}
-		if (name.contains("-")) {
-			return StringUtils.substringBefore(name, "-");
-		}
-		if (name.contains(":")) {
-			return StringUtils.substringBefore(name, ":");
-		} else
-			return "No Project";
-	}
+        for (IViewEntry job : allContents.getJobs()) {
+            String prefix = getPrefix(job.getName());
+            ProjectViewEntry project = jobsByPrefix.get(prefix);
+            if (project == null) {
+                project = new ProjectViewEntry(prefix);
+                jobsByPrefix.put(prefix, project);
+                contents.addBuild(project);
+            }
+            project.addBuild(job);
+        }
+        return contents;
+    }
 
-	/**
-	 * Gets from the request the configuration parameters
-	 * 
-	 * @param req
-	 *            {@link StaplerRequest}
-	 * @throws ServletException
-	 *             if any
-	 * @throws FormException
-	 *             if any
-	 */
-	@Override
-	protected void submit(StaplerRequest req) throws ServletException,
-			IOException, FormException {
-		super.submit(req);
-		this.showStable = Boolean.parseBoolean(req.getParameter("showStable"));
-		this.showStableDetail = Boolean.parseBoolean(req
-				.getParameter("showStableDetail"));
-		this.highVis = Boolean.parseBoolean(req.getParameter("highVis"));
-		this.groupByPrefix = Boolean.parseBoolean(req
-				.getParameter("groupByPrefix"));
-		this.showCurrentDateTime = Boolean.parseBoolean(req
-				.getParameter("showCurrentDateTime"));
-		this.showCommitMessages = Boolean.parseBoolean(req
-				.getParameter("showCommitMessages"));
-		this.showAvailableHarddiskSpace = Boolean.parseBoolean(req
-				.getParameter("showAvailableHarddiskSpace"));
-		this.showTestCoverage = Boolean.parseBoolean(req.getParameter("showTestCoverage"));
+    private String getPrefix(String name) {
+        if (name.contains("_")) {
+            return StringUtils.substringBefore(name, "_");
+        }
+        if (name.contains("-")) {
+            return StringUtils.substringBefore(name, "-");
+        }
+        if (name.contains(":")) {
+            return StringUtils.substringBefore(name, ":");
+        } else
+            return "No Project";
+    }
 
-	}
+    /**
+     * Gets from the request the configuration parameters
+     * 
+     * @param req
+     *            {@link StaplerRequest}
+     * @throws ServletException
+     *             if any
+     * @throws FormException
+     *             if any
+     */
+    @Override
+    protected void submit(StaplerRequest req) throws ServletException,
+            IOException, FormException {
+        super.submit(req);
+        this.showStable = Boolean.parseBoolean(req.getParameter("showStable"));
+        this.showStableDetail = Boolean.parseBoolean(req
+                .getParameter("showStableDetail"));
+        this.highVis = Boolean.parseBoolean(req.getParameter("highVis"));
+        this.groupByPrefix = Boolean.parseBoolean(req
+                .getParameter("groupByPrefix"));
+        this.showCurrentDateTime = Boolean.parseBoolean(req
+                .getParameter("showCurrentDateTime"));
+        this.showCommitMessages = Boolean.parseBoolean(req
+                .getParameter("showCommitMessages"));
+        this.showAvailableHarddiskSpace = Boolean.parseBoolean(req
+                .getParameter("showAvailableHarddiskSpace"));
+        this.showTestCoverage = Boolean.parseBoolean(req
+                .getParameter("showTestCoverage"));
 
-	public Boolean getShowStable() {
-		return showStable;
-	}
+    }
 
-	public Boolean getShowStableDetail() {
-		return showStableDetail;
-	}
+    public Boolean getShowStable() {
+        return showStable;
+    }
 
-	public Boolean getHighVis() {
-		return highVis;
-	}
+    public Boolean getShowStableDetail() {
+        return showStableDetail;
+    }
 
-	/**
-	 * @return the user configuration to show the date and time of the last page
-	 *         update
-	 */
-	public Boolean getGroupByPrefix() {
-		return groupByPrefix;
-	}
+    public Boolean getHighVis() {
+        return highVis;
+    }
 
-	/**
-	 * @return the user configuration to show the date and time of the last page
-	 *         update
-	 */
-	public boolean isShowCurrentDateTime() {
-		return showCurrentDateTime.booleanValue();
-	}
+    /**
+     * @return the user configuration to show the date and time of the last page
+     *         update
+     */
+    public Boolean getGroupByPrefix() {
+        return groupByPrefix;
+    }
 
-	/**
-	 * @return the user configuration to show the commit messages
-	 */
-	public boolean isShowCommitMessages() {
-		return showCommitMessages.booleanValue();
-	}
+    /**
+     * @return the user configuration to show the date and time of the last page
+     *         update
+     */
+    public boolean isShowCurrentDateTime() {
+        return showCurrentDateTime.booleanValue();
+    }
 
-	/**
-	 * Returns the date/time of call formatted as yyyy-MM-DD hh:mm:ss.
-	 * 
-	 * @return the formatted date of this call
-	 */
-	public String getLastUpdateTime() {
-		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		return formatter.format(new Date());
-	}
+    /**
+     * @return the user configuration to show the commit messages
+     */
+    public boolean isShowCommitMessages() {
+        return showCommitMessages.booleanValue();
+    }
 
-	/**
-	 * Converts a list of jobs to a list of list of jobs, suitable for display
-	 * as rows in a table.
-	 * 
-	 * @param jobs
-	 *            the jobs to include.
-	 * @param failingJobs
-	 *            if this is a list of failing jobs, in which case fewer jobs
-	 *            should be used per row.
-	 * @return a list of fixed size view entry lists.
-	 */
-	public Collection<Collection<IViewEntry>> toRows(
-			Collection<IViewEntry> jobs, Boolean failingJobs) {
-		int jobsPerRow = 1;
-		if (failingJobs.booleanValue()) {
-			if (jobs.size() > 3) {
-				jobsPerRow = 2;
-			}
-			if (jobs.size() > 9) {
-				jobsPerRow = 3;
-			}
-			if (jobs.size() > 15) {
-				jobsPerRow = 4;
-			}
-		} else {
-			// don't mind having more rows as much for passing jobs.
-			jobsPerRow = (int) Math.floor(Math.sqrt(jobs.size()) / 1.5);
-		}
-		Collection<Collection<IViewEntry>> rows = new ArrayList<Collection<IViewEntry>>();
-		Collection<IViewEntry> current = null;
-		int i = 0;
-		for (IViewEntry job : jobs) {
-			if (i == 0) {
-				current = new ArrayList<IViewEntry>();
-				rows.add(current);
-			}
-			current.add(job);
-			i++;
-			if (i >= jobsPerRow) {
-				i = 0;
-			}
-		}
-		return rows;
-	}
+    /**
+     * Returns the date/time of call formatted as yyyy-MM-DD hh:mm:ss.
+     * 
+     * @return the formatted date of this call
+     */
+    public String getLastUpdateTime() {
+        final DateFormat formatter = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        return formatter.format(new Date());
+    }
 
-	/**
-	 * @return true, if the current used java installation is > 1.5
-	 */
-	private boolean isAfterJava5() {
-		final String version = System.getProperties().getProperty(
-				"java.version");
-		// Hudson/Jenkins cannot run on Java < 1.5
-		final boolean afterJava5 = !version.startsWith("1.5"); 
-		return afterJava5;
-	}
+    /**
+     * Converts a list of jobs to a list of list of jobs, suitable for display
+     * as rows in a table.
+     * 
+     * @param jobs
+     *            the jobs to include.
+     * @param failingJobs
+     *            if this is a list of failing jobs, in which case fewer jobs
+     *            should be used per row.
+     * @return a list of fixed size view entry lists.
+     */
+    public Collection<Collection<IViewEntry>> toRows(
+            Collection<IViewEntry> jobs, Boolean failingJobs) {
+        int jobsPerRow = 1;
+        if (failingJobs.booleanValue()) {
+            if (jobs.size() > 3) {
+                jobsPerRow = 2;
+            }
+            if (jobs.size() > 9) {
+                jobsPerRow = 3;
+            }
+            if (jobs.size() > 15) {
+                jobsPerRow = 4;
+            }
+        } else {
+            // don't mind having more rows as much for passing jobs.
+            jobsPerRow = (int) Math.floor(Math.sqrt(jobs.size()) / 1.5);
+        }
+        Collection<Collection<IViewEntry>> rows = new ArrayList<Collection<IViewEntry>>();
+        Collection<IViewEntry> current = null;
+        int i = 0;
+        for (IViewEntry job : jobs) {
+            if (i == 0) {
+                current = new ArrayList<IViewEntry>();
+                rows.add(current);
+            }
+            current.add(job);
+            i++;
+            if (i >= jobsPerRow) {
+                i = 0;
+            }
+        }
+        return rows;
+    }
 
-	/**
-	 * @return the showAvailableHarddiskSpace
-	 */
-	public boolean isShowAvailableHarddiskSpace() {
-		return showAvailableHarddiskSpace.booleanValue() && isAvailableHarddiskSpaceShowable();
-	}
+    /**
+     * @return true, if the current used java installation is > 1.5
+     */
+    private boolean isAfterJava5() {
+        final String version = System.getProperties().getProperty(
+                "java.version");
+        // Hudson/Jenkins cannot run on Java < 1.5
+        return !version.startsWith("1.5");
+    }
 
-	/**
-	 * @return the availableHarddiskSpaceShowable
-	 */
-	public boolean isAvailableHarddiskSpaceShowable() {
-		return isAfterJava5();
-	}
-	
-	/**
-	 * @return the showTestCoverage
-	 */
-	public boolean isShowTestCoverage() {
-		return showTestCoverage.booleanValue() && isCoberturaPluginInstalled();
-	}
+    /**
+     * @return the showAvailableHarddiskSpace
+     */
+    public boolean isShowAvailableHarddiskSpace() {
+        return showAvailableHarddiskSpace.booleanValue()
+                && isAvailableHarddiskSpaceShowable();
+    }
 
-	/**
-	 * @return the percentage value of used space on the file system.
-	 * @throws RuntimeExcepttion if this is not allowed
-	 */
-	public long getFileSystemUsage() {
-		if (isShowAvailableHarddiskSpace()) {
-			return DiskSpaceUtil.getPercentageFileSystemUse(Hudson
-					.getInstance().getRootDir());
-		} else {
-			throw new RuntimeException("Trying to get the available free space of a system that is Java 1.5");
-		}
-	}
-	
-	/**
-	 * @return true,if the "cobertura"-plugin is installed and loaded
-	 */
-	public boolean isCoberturaPluginInstalled() {
-		final PluginWrapper wrapper = Hudson.getInstance().pluginManager.getPlugin("cobertura");
-		return  wrapper != null && wrapper.isActive();
-	}
+    /**
+     * @return the availableHarddiskSpaceShowable
+     */
+    public boolean isAvailableHarddiskSpaceShowable() {
+        return isAfterJava5();
+    }
 
-	@Extension
-	public static final class DescriptorImpl extends ViewDescriptor {
-		public DescriptorImpl() {
-			super(RadiatorView.class);
-		}
+    /**
+     * @return the showTestCoverage
+     */
+    public boolean isShowTestCoverage() {
+        return showTestCoverage.booleanValue() && isCoberturaPluginInstalled();
+    }
 
-		@Override
-		public String getDisplayName() {
-			return "Radiator";
-		}
+    /**
+     * @return the percentage value of used space on the file system or -1 if
+     *         this method is called without earlier having checked
+     *         isShowAvailableHarddiskSpace().
+     * @throws RuntimeExcepttion
+     *             if this is not allowed
+     */
+    public long getFileSystemUsage() {
+        long fileUsage = -1;
+        if (isShowAvailableHarddiskSpace()) {
+            fileUsage = DiskSpaceUtil.getPercentageFileSystemUse(Hudson
+                    .getInstance().getRootDir());
+        }
 
-		/**
-		 * Checks if the include regular expression is valid.
-		 */
-		public FormValidation doCheckIncludeRegex(@QueryParameter String value) {
-			String v = Util.fixEmpty(value);
-			if (v != null) {
-				try {
-					Pattern.compile(v);
-				} catch (PatternSyntaxException pse) {
-					return FormValidation.error(pse.getMessage());
-				}
-			}
-			return FormValidation.ok();
-		}
-	}
+        return fileUsage;
+    }
+
+    /**
+     * @return true,if the "cobertura"-plugin is installed and loaded
+     */
+    public boolean isCoberturaPluginInstalled() {
+        final PluginWrapper wrapper = Hudson.getInstance().pluginManager
+                .getPlugin("cobertura");
+        return wrapper != null && wrapper.isActive();
+    }
+
+    @Extension
+    public static final class DescriptorImpl extends ViewDescriptor {
+        public DescriptorImpl() {
+            super(RadiatorView.class);
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "Radiator";
+        }
+
+        /**
+         * Checks if the include regular expression is valid.
+         */
+        public FormValidation doCheckIncludeRegex(@QueryParameter String value) {
+            String v = Util.fixEmpty(value);
+            if (v != null) {
+                try {
+                    Pattern.compile(v);
+                } catch (PatternSyntaxException pse) {
+                    return FormValidation.error(pse.getMessage());
+                }
+            }
+            return FormValidation.ok();
+        }
+    }
 }

@@ -135,7 +135,7 @@
 						</excludeRoot>
 					</excludeRoots>
 					<includes>
-						<include>**/*</include>
+						<include>**/hudson/mode/coberturaconnector/*java</include>
 					</includes>
 					<linkXref>true</linkXref>
 					<targetJdk>1.6</targetJdk>
